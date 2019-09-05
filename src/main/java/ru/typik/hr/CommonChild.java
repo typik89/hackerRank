@@ -7,20 +7,27 @@ import java.util.Map;
 
 public class CommonChild {
 	
-	static StringBuilder LCS( String s1 , int i1 , String s2 , int i2 ) {
-		if ( i1 == 0 || i2 == 0 ) {
-			return new StringBuilder();
-		}else if ( s1.charAt( i1 ) == s2.charAt( i2 ) ) {
-			return LCS( s1 , i1 - 1 , s2 , i2 - 1 ).append( s1.charAt( i1 ) );
-		}else {
-			StringBuilder word1 = LCS( s1 , i1 - 1, s2 , i2     );
-			StringBuilder word2 = LCS( s1 , i1    , s2 , i2 - 1 );
-			return word1.length() > word2.length() ? word1 : word2;
+	static String LCS( String s1 , int i1 , String s2 , int i2 , String[][] cache ) {
+		if ( i1 < 0 || i2 < 0 ) {
+			return "";
 		}
+		if ( cache[i1][i2] != null) {
+			return cache[i1][i2];
+		}
+		String result = "";
+		if ( s1.charAt( i1 ) == s2.charAt( i2 ) ) {
+			result = LCS( s1 , i1 - 1 , s2 , i2 - 1 , cache ) + s1.charAt( i1 );
+		}else {
+			String word1 = LCS( s1 , i1 - 1, s2 , i2     , cache );
+			String word2 = LCS( s1 , i1    , s2 , i2 - 1 , cache );
+			result = word1.length() > word2.length() ? word1 : word2;
+		}
+		cache[i1][i2] = result;
+		return result;
 	}
 	
 	public static int commonChild( String s1 , String s2 ) {
-		return LCS( s1 , s1.length() - 1 , s2 , s2.length() - 1 ).length();
+		return LCS( s1 , s1.length() - 1 , s2 , s2.length() - 1 , new String[s1.length()][s2.length()] ).length();
 	}
 	
 	
