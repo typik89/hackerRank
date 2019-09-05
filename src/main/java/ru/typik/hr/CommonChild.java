@@ -4,8 +4,70 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class CommonChild {
+	
+	static Integer safeCacheGetter( Integer[][] cache , int i1 , int i2 ) {
+		if ( i1 < 0 || i2 < 0 ) {
+			return 0;
+		}
+		Integer index = cache[i1][i2];
+		return index;
+	}
+	
+	static Integer LCSStack( String s1 , String s2 ) {
+		Stack<Integer[]> stack = new Stack<Integer[]>();
+		Integer[][] cache = new Integer[s1.length()][s2.length()];
+		int i1 = s1.length() - 1;
+		int i2 = s2.length() - 1;
+		while( true ) {
+			if ( i1 < 0 && i2 < 0 ) {
+				Integer[] indexes = stack.pop();
+				i1 = indexes[0];
+				i2 = indexes[1];
+				continue;
+			}
+			if ( s1.charAt( i1 ) == s2.charAt( i2 ) ) {
+				Integer word = safeCacheGetter( cache , i1 - 1, i2 - 1 );
+				if ( word != null ) {
+					cache[i1][i2] = word + 1;
+					if ( stack.isEmpty() ) {
+						return cache[i1][i2];
+					}
+					Integer[] indexes = stack.pop();
+					i1 = indexes[0];
+					i2 = indexes[1];
+					continue;
+				}else {
+					stack.push( new Integer[] {i1,i2} );
+					i1--;
+					i2--;
+					continue;
+				}
+			}else {
+				if ( safeCacheGetter( cache , i1-1 , i2 ) == null ) {
+					stack.push( new Integer[] {i1,i2} );
+					i1--;
+					continue;
+				}else if ( safeCacheGetter( cache , i1 , i2-1 ) == null ) {
+					stack.push( new Integer[] {i1,i2} );
+					i2--;
+					continue;
+				}else {
+					Integer wordLen1 = safeCacheGetter( cache , i1-1 , i2     );
+					Integer wordLen2 = safeCacheGetter( cache , i1   , i2 - 1 );
+					cache[i1][i2] = wordLen1 > wordLen2 ? wordLen1 : wordLen2;
+					if ( stack.isEmpty() ) {
+						return cache[i1][i2];
+					}
+					Integer[] indexes = stack.pop();
+					i1 = indexes[0];
+					i2 = indexes[1];
+				}
+			}			
+		}
+	}
 	
 	static String LCS( String s1 , int i1 , String s2 , int i2 , String[][] cache ) {
 		if ( i1 < 0 || i2 < 0 ) {
@@ -27,7 +89,8 @@ public class CommonChild {
 	}
 	
 	public static int commonChild( String s1 , String s2 ) {
-		return LCS( s1 , s1.length() - 1 , s2 , s2.length() - 1 , new String[s1.length()][s2.length()] ).length();
+		return LCSStack(s1, s2);
+		//return LCS( s1 , s1.length() - 1 , s2 , s2.length() - 1 , new String[s1.length()][s2.length()] ).length();
 	}
 	
 	
