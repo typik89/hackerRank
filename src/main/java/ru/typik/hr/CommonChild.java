@@ -4,9 +4,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 public class CommonChild {
+	
+	static class ArrayStack{
+		private Integer[][] array;
+		private int curIndex;
+		public ArrayStack(int len) {
+			this.array = new Integer[len][2];
+			this.curIndex = -1;
+		}
+		public Integer[] pop() {
+			return this.array[this.curIndex--];
+		}
+		public void push(int i1, int i2) {
+			this.curIndex++; 
+			this.array[curIndex][0] = i1;
+			this.array[curIndex][1] = i2;
+		}
+		public boolean isEmpty() {
+			return this.curIndex < 0;
+		}
+	}
 	
 	static Integer safeCacheGetter( Integer[][] cache , int i1 , int i2 ) {
 		if ( i1 < 0 || i2 < 0 ) {
@@ -16,11 +35,13 @@ public class CommonChild {
 		return index;
 	}
 	
-	static Integer LCSStack( String s1 , String s2 ) {
-		Stack<Integer[]> stack = new Stack<Integer[]>();
-		Integer[][] cache = new Integer[s1.length()][s2.length()];
-		int i1 = s1.length() - 1;
-		int i2 = s2.length() - 1;
+	static Integer LCSStack( String string1 , String string2 ) {
+		char[] charr1 = string1.toCharArray();
+		char[] charr2 = string2.toCharArray();
+		ArrayStack stack = new ArrayStack( charr1.length + charr2.length );
+		Integer[][] cache = new Integer[charr1.length][charr2.length];
+		int i1 = charr1.length - 1;
+		int i2 = charr2.length - 1;
 		while( true ) {
 			if ( i1 < 0 && i2 < 0 ) {
 				Integer[] indexes = stack.pop();
@@ -28,7 +49,7 @@ public class CommonChild {
 				i2 = indexes[1];
 				continue;
 			}
-			if ( s1.charAt( i1 ) == s2.charAt( i2 ) ) {
+			if ( charr1[i1] == charr2[i2] ) {
 				Integer word = safeCacheGetter( cache , i1 - 1, i2 - 1 );
 				if ( word != null ) {
 					cache[i1][i2] = word + 1;
@@ -40,18 +61,18 @@ public class CommonChild {
 					i2 = indexes[1];
 					continue;
 				}else {
-					stack.push( new Integer[] {i1,i2} );
+					stack.push( i1,i2 );
 					i1--;
 					i2--;
 					continue;
 				}
 			}else {
 				if ( safeCacheGetter( cache , i1-1 , i2 ) == null ) {
-					stack.push( new Integer[] {i1,i2} );
+					stack.push( i1,i2 );
 					i1--;
 					continue;
 				}else if ( safeCacheGetter( cache , i1 , i2-1 ) == null ) {
-					stack.push( new Integer[] {i1,i2} );
+					stack.push(  i1,i2  );
 					i2--;
 					continue;
 				}else {
@@ -90,7 +111,6 @@ public class CommonChild {
 	
 	public static int commonChild( String s1 , String s2 ) {
 		return LCSStack(s1, s2);
-		//return LCS( s1 , s1.length() - 1 , s2 , s2.length() - 1 , new String[s1.length()][s2.length()] ).length();
 	}
 	
 	
