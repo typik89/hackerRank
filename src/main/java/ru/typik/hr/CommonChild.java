@@ -35,6 +35,25 @@ public class CommonChild {
 		return index;
 	}
 	
+	
+	static int LCSArray( String s1 , String s2 ) {
+		char[] ch1 = s1.toCharArray();
+		char[] ch2 = s2.toCharArray();		
+		int[][] lcs = new int[ch1.length][ch2.length];
+		for( int i = 0; i < ch1.length; ++i ) {
+			for( int j = 0; j < ch2.length; ++j ) {
+				if ( ch1[i] == ch2[j] ) {					
+					lcs[i][j] = i == 0 || j == 0 ? 1 : lcs[i-1][j-1] + 1;
+				}else {
+					int prevLcs1 = i == 0 ? 0 : lcs[i-1][j];
+					int prevLcs2 = j == 0 ? 0 : lcs[i][j-1];
+					lcs[i][j] = prevLcs1 > prevLcs2 ? prevLcs1 : prevLcs2;
+				}
+			}
+		}
+		return lcs[ch1.length-1][ch2.length-1];		
+	}
+	
 	static Integer LCSStack( String string1 , String string2 ) {
 		char[] charr1 = string1.toCharArray();
 		char[] charr2 = string2.toCharArray();
@@ -110,7 +129,7 @@ public class CommonChild {
 	}
 	
 	public static int commonChild( String s1 , String s2 ) {
-		return LCSStack(s1, s2);
+		return LCSArray(s1, s2);
 	}
 	
 	

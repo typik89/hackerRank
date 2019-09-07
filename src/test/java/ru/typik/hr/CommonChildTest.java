@@ -13,7 +13,7 @@ public class CommonChildTest {
 	
 	public static int commonChildFromFile( String url ) throws IOException {
 		List<String> lines = Files.readAllLines( Paths.get( url ) );
-		return CommonChild.commonChild( lines.get( 0 ) , lines.get( 1 ) );
+		return CommonChild.LCSArray( lines.get( 0 ) , lines.get( 1 ) );
 	}
 	
 	@Test
