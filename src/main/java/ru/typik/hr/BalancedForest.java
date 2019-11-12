@@ -39,17 +39,35 @@ public class BalancedForest {
 	}
 
 	public static int getNodeValueToCreateBalancedTree(int[] values, int[][] edges) {
+		int addValue = -1;
 		for( int i = 0; i < edges.length - 1; ++i ) {
 			for( int j = i + 1; j < edges.length; ++j ) {
 				TreeNode[] forest = createTrees(values, edges, i, j);
-				System.out.println( String.format( "%d,%d" , i,j) );
-				for( TreeNode treeNode : forest ) {
-					System.out.println( "sum:" + getTreeSum(treeNode) );
+				int sum1 = getTreeSum( forest[0] );
+				int sum2 = getTreeSum( forest[1] );
+				int sum3 = getTreeSum( forest[2] );
+				if ( sum1 == sum2 && sum3 < sum1 ) {
+					addValue = getAddValue(addValue, sum2 - sum3 ); 
+				}
+				if ( sum2 == sum3 && sum1 < sum3 ) {
+					addValue = getAddValue(addValue, sum3 - sum1 );
+				}
+				if ( sum1 == sum3 && sum2 < sum1 ) {
+					addValue = getAddValue(addValue, sum1 - sum2 );
 				}
 			}
 		}
-		
-		return -1;
+		return addValue;
+	}
+	
+	private static int getAddValue( int currentValue , int delta ) {
+		if ( delta < 0 ) {
+			return currentValue;
+		}else if ( currentValue < 0 ) {
+			return delta;
+		}else {
+			return delta < currentValue ? delta : currentValue;
+		}
 	}
 
 	private static TreeNode[] createTrees(int[] values,int[][] edges,int cut1, int cut2) {
