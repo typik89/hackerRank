@@ -30,38 +30,40 @@ public class BalancedForest {
 		}
 	}
 	
-	public static int getTreeSum( TreeNode root ) {
-		int sum = root.getValue();
-		for( TreeNode child : root.getChilds() ) {
-			sum += getTreeSum( child );
-		}
-		return sum;
-	}
+	
 
-	public static int getNodeValueToCreateBalancedTree(int[] values, int[][] edges) {
+	public static int balancedForest(int[] values, int[][] edges) {
 		int addValue = -1;
 		for( int i = 0; i < edges.length - 1; ++i ) {
 			for( int j = i + 1; j < edges.length; ++j ) {
 				TreeNode[] forest = createTrees(values, edges, i, j);
-				int sum1 = getTreeSum( forest[0] );
-				int sum2 = getTreeSum( forest[1] );
-				int sum3 = getTreeSum( forest[2] );
+				long sum1 = getTreeSum( forest[0] );
+				long sum2 = getTreeSum( forest[1] );
+				long sum3 = getTreeSum( forest[2] );
 				if ( sum1 == sum2 && sum3 < sum1 ) {
-					addValue = getAddValue(addValue, sum2 - sum3 ); 
+					addValue = getAddValue(addValue, (int)(sum2 - sum3) ); 
 				}
 				if ( sum2 == sum3 && sum1 < sum3 ) {
-					addValue = getAddValue(addValue, sum3 - sum1 );
+					addValue = getAddValue(addValue, (int)(sum3 - sum1) );
 				}
 				if ( sum1 == sum3 && sum2 < sum1 ) {
-					addValue = getAddValue(addValue, sum1 - sum2 );
+					addValue = getAddValue(addValue, (int)(sum1 - sum2) );
 				}
 			}
 		}
 		return addValue;
 	}
 	
+	private static long getTreeSum( TreeNode root ) {
+		int sum = root.getValue();
+		for( TreeNode child : root.getChilds() ) {
+			sum += getTreeSum( child );
+		}
+		return sum;
+	}
+	
 	private static int getAddValue( int currentValue , int delta ) {
-		if ( delta < 0 ) {
+		if ( delta <= 0 ) {
 			return currentValue;
 		}else if ( currentValue < 0 ) {
 			return delta;
