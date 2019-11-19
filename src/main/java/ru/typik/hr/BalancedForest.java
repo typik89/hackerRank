@@ -2,120 +2,117 @@ package ru.typik.hr;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class BalancedForest {
 	
-	public static class TreeNode{
+	public static class Node{
 		private int id;
 		private int value;
-		private TreeNode parent;
-		private List<TreeNode> childs = new ArrayList<>();
-		public TreeNode(int index,int value) {
+		private List<Node> connections = new ArrayList<>();
+		public Node(int id,int value) {
 			this.value = value;
-			this.id = index;
+			this.setId(id);
 		}
 		public int getValue() {
 			return value;
 		}
-		public void addChild(TreeNode node) {
-			childs.add( node );
+		public void removeConnection(Node node) {
+			connections.remove( node );
 		}
-		public List<TreeNode> getChilds(){
-			return childs;
+		public void addConnection(Node node) {
+			connections.add( node );
 		}
-		public TreeNode getParent() {
-			return parent;
-		}
-		public void setParent(TreeNode parent) {
-			this.parent = parent;
+		public List<Node> getConnections() {
+			return connections;
 		}
 		public int getId() {
 			return id;
 		}
-		
-		public TreeNode clone() {
-			TreeNode treeNode = new TreeNode( getId() , getValue() );
-			for( TreeNode child : treeNode.getChilds() ) {
-				TreeNode newChild = child.clone();
-				newChild.setParent( treeNode );
-				treeNode.addChild( newChild );
-			}
-			return treeNode;
+		public void setId(int id) {
+			this.id = id;
 		}
 	}
-	
-	
 
 	public static int balancedForest(int[] values, int[][] edges) {
-		int addValue = -1;
-		for( int i = 0; i < edges.length - 1; ++i ) {
-			for( int j = i + 1; j < edges.length; ++j ) {
-				TreeNode[] forest = createTrees(values, edges, i, j);
-				long sum1 = getTreeSum( forest[0] );
-				long sum2 = getTreeSum( forest[1] );
-				long sum3 = getTreeSum( forest[2] );
-				System.out.println( String.format( "%s %s %s", sum1, sum2, sum3 ) ); 
-				if ( sum1 == sum2 && sum3 < sum1 ) {
-					addValue = getAddValue(addValue, (int)(sum2 - sum3) ); 
-				}
-				if ( sum2 == sum3 && sum1 < sum3 ) {
-					addValue = getAddValue(addValue, (int)(sum3 - sum1) );
-				}
-				if ( sum1 == sum3 && sum2 < sum1 ) {
-					addValue = getAddValue(addValue, (int)(sum1 - sum2) );
-				}
-			}
+		Node[] nodes = new Node[values.length];
+		Integer minResult = null;
+		for( int i = 0; i < values.length; ++i ) {
+			nodes[i] = new Node(i, values[i]);
 		}
-		return addValue;
+		for( int[] edge : edges ) {
+			add(nodes, edge);
+		}
+		for( int i = 0; i < edges.length - 1; ++i ) {
+			cut(nodes, edges[i]);
+			for( int j = 0; j < edges.length; ++j ) {
+				cut(nodes, edges[j]);
+				int[] graphIndex = new int[nodes.length];
+				int graphNum = 0;
+				for( Node node : nodes ) {
+					if ( graphIndex[node.getId()] < 1 ) {
+						graphNum++;
+						walkToGraphAndMark(node,graphIndex,graphNum);
+					}
+					if ( graphNum == 3 ) {
+						break;
+					}
+				}
+				long sum1 = getSum(nodes,graphIndex,1);
+				long sum2 = getSum(nodes,graphIndex,2);
+				long sum3 = getSum(nodes,graphIndex,3);
+				int newResult = getValueToAdd( sum1 , sum2 , sum3 );
+				minResult = minResult == null || newResult < minResult ? 
+						newResult : minResult;
+				add(nodes,edges[j]);
+			}
+			add(nodes,edges[i]);
+		}
+		return minResult == null ? -1 : minResult;
 	}
 	
-	private static long getTreeSum( TreeNode root ) {
-		int sum = root.getValue();
-		for( TreeNode child : root.getChilds() ) {
-			sum += getTreeSum( child );
+	private static int getValueToAdd(long sum1, long sum2, long sum3) {
+		
+	}
+
+	private static long getSum(Node[] nodes, int[] graphIndex, int graphNum) {
+		long sum = 0;
+		for( int i = 0; i < graphIndex.length; ++i) {
+			if ( graphIndex[i] == graphNum ) {
+				sum += nodes[i].getValue();
+			}
+		}
+		return sum;
+		
+	}
+
+	private static void walkToGraphAndMark(Node node, int[] graphIndex, int graphNum) {
+		graphIndex[node.getId()] = graphNum;
+		for( Node connection : node.getConnections() ) {
+			if ( graphIndex[node.getId()] < 1 ) {
+				walkToGraphAndMark(connection, graphIndex, graphNum);
+			}
+		}
+	}
+
+	private static void cut(Node[] nodes,int[] edge) {
+		nodes[edge[1]-1].removeConnection(nodes[edge[0]-1]);
+		nodes[edge[0]-1].removeConnection(nodes[edge[1]-1]);
+	}
+	private static void add( Node[] nodes , int[] edge ) {
+		nodes[edge[0]-1].addConnection( nodes[edge[1]-1] );
+		nodes[edge[1]-1].addConnection( nodes[edge[0]-1] );		
+	}
+	
+	private static long getSum(Node node,boolean[] passed) {
+		long sum = node.getValue();
+		passed[node.getId()] = true;
+		for( Node connection : node.getConnections() ) {
+			if ( !passed[connection.getId()] ) {
+				sum += getSum(connection, passed);
+			}
 		}
 		return sum;
 	}
 	
-	private static int getAddValue( int currentValue , int delta ) {
-		if ( delta <= 0 ) {
-			return currentValue;
-		}else if ( currentValue < 0 ) {
-			return delta;
-		}else {
-			return delta < currentValue ? delta : currentValue;
-		}
-	}
 	
-	
-	private static TreeNode[] cutTrees( TreeNode node , int[] cutEdge1, int[] cutEdge2 ) {
-		TreeNode treeNodeForCut = node.clone();
-		TreeNode[] cutNodes = new TreeNode[4];	
-		return null;
-	}
-	
-	
-
-	private static TreeNode[] createTrees(int[] values,int[][] edges,int cut1, int cut2) {
-		TreeNode[] nodes = new TreeNode[ values.length ];
-		for( int i = 0; i < values.length; ++i ) {
-			nodes[i] = new TreeNode( i , values[i] );
-		}
-		int i = 0;
-		for( int[] edge : edges ) {
-			if ( i != cut1 && i != cut2 ) {
-				TreeNode node1 = nodes[ edge[0] - 1 ];
-				TreeNode node2 = nodes[ edge[1] - 1 ];
-				if ( node2.getParent() != null ) {
-					node2.addChild( node1 );
-				}else {
-					node1.addChild( node2 );
-				}
-			}
-			i++;
-		}
-		return Stream.of( nodes ).filter( el -> el.getParent() == null ).toArray( count -> new TreeNode[count] );
-	}
-
 }
