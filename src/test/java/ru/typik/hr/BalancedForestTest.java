@@ -27,7 +27,7 @@ public class BalancedForestTest {
 	}
 
 	@Test
-	public void testFile() throws IOException {
+	public void testFile1() throws IOException {
 		List<Parameters> parametersList = getParametersFromFile("src/test/resources/balancedTree/input01.txt");
 		assertEquals(5, parametersList.size());
 
@@ -41,6 +41,26 @@ public class BalancedForestTest {
 				BalancedForest.balancedForest(parametersList.get(3).getValues(), parametersList.get(3).getEdges()));
 		assertEquals(297,
 				BalancedForest.balancedForest(parametersList.get(4).getValues(), parametersList.get(4).getEdges()));
+	}
+
+	@Test
+	public void testFile3() throws IOException {
+		List<Parameters> parametersList = getParametersFromFile("src/test/resources/balancedTree/input03.txt");
+		for (Parameters params : parametersList) {
+			BalancedForest.balancedForest(params.values, params.edges);
+		}
+//		assertEquals(5, parametersList.size());
+//
+//		assertEquals(-1,
+//				BalancedForest.balancedForest(parametersList.get(0).getValues(), parametersList.get(0).getEdges()));
+//		assertEquals(10,
+//				BalancedForest.balancedForest(parametersList.get(1).getValues(), parametersList.get(1).getEdges()));
+//		assertEquals(13,
+//				BalancedForest.balancedForest(parametersList.get(2).getValues(), parametersList.get(2).getEdges()));
+//		assertEquals(5,
+//				BalancedForest.balancedForest(parametersList.get(3).getValues(), parametersList.get(3).getEdges()));
+//		assertEquals(297,
+//				BalancedForest.balancedForest(parametersList.get(4).getValues(), parametersList.get(4).getEdges()));
 	}
 
 	private List<Parameters> getParametersFromFile(String path) throws IOException {
