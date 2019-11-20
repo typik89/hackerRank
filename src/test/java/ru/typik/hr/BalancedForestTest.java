@@ -46,9 +46,9 @@ public class BalancedForestTest {
 	@Test
 	public void testFile3() throws IOException {
 		List<Parameters> parametersList = getParametersFromFile("src/test/resources/balancedTree/input03.txt");
-		for (Parameters params : parametersList) {
-			BalancedForest.balancedForest(params.values, params.edges);
-		}
+		
+
+		BalancedForest.balancedForest(parametersList.get(0).values, parametersList.get(0).edges);
 //		assertEquals(5, parametersList.size());
 //
 //		assertEquals(-1,
