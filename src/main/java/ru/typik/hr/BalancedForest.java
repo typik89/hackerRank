@@ -1,69 +1,77 @@
 package ru.typik.hr;
 
+import java.util.Arrays;
+
 public class BalancedForest {
 
 	public static int balancedForest(int[] values, int[][] edges) {
 		Integer minAddValue = null;
 		for (int i = 0; i < edges.length - 1; ++i) {
-			for (int j = i + 1; j < edges.length; ++j) {
-//				System.out.println(
-//						String.format("Cut %s->%s and %s->%s", edges[i][0], edges[i][1], edges[j][0], edges[j][1]));
+			int[] graphIndexes = new int[values.length];
+			Arrays.fill(graphIndexes, 1);
+			cutEdge(edges, graphIndexes, 2, i);
 
-				int[] graphIndexes = new int[values.length];
-				boolean[] markEdges = new boolean[edges.length];
-				markEdges[i] = true;
-				markEdges[j] = true;
-				walkThroughEdges(edges, graphIndexes, markEdges, 1);
-				walkThroughEdges(edges, graphIndexes, markEdges, 2);
-				walkThroughEdges(edges, graphIndexes, markEdges, 3);
+//			System.out.println(String.format("Graph indexes after cut %s->%s : %s", edges[i][0], edges[i][1],
+//					IntStream.of(graphIndexes).boxed().collect(Collectors.toList())));
 
-//				System.out.println(String.format("Graph indexes : %s",
-//						IntStream.of(graphIndexes).boxed().collect(Collectors.toList())));
+			long sum1 = getSum(values, graphIndexes, 1);
+			long sum2 = getSum(values, graphIndexes, 2);
 
-				long sum1 = getSum(values, graphIndexes, 1);
-				long sum2 = getSum(values, graphIndexes, 2);
-				long sum3 = getSum(values, graphIndexes, 3);
+//			System.out.println(String.format("Sum1 : %s", sum1));
+//			System.out.println(String.format("Sum2 : %s", sum2));
 
-				Integer addValue = getValueToAdd(sum1, sum2, sum3);
-				minAddValue = minAddValue == null ? addValue
-						: addValue != null && addValue < minAddValue ? addValue : minAddValue;
+			if (sum1 == sum2) {
+				minAddValue = getMinValue(minAddValue, (int) sum1);
+			} else {
+				for (int j = i + 1; j < edges.length; ++j) {
+					int graphNumToDivide = sum1 < sum2 ? 2 : 1;
+					if (i != j && graphIndexes[edges[j][0] - 1] == graphNumToDivide) {
+						cutEdge(edges, graphIndexes, 3, i, j);
+
+//						System.out.println(String.format("Graph indexes after cut %s->%s : %s", edges[j][0],
+//								edges[j][1], IntStream.of(graphIndexes).boxed().collect(Collectors.toList())));
+						long sumPart1 = graphNumToDivide == 1 ? getSum(values, graphIndexes, 1) : sum1;
+						long sumPart2 = graphNumToDivide == 2 ? getSum(values, graphIndexes, 2) : sum2;
+						long sumPart3 = getSum(values, graphIndexes, 3);
+
+//						System.out.println(String.format("Sum1 : %s", sumPart1));
+//						System.out.println(String.format("Sum2 : %s", sumPart2));
+//						System.out.println(String.format("Sum3 : %s", sumPart3));
+
+						minAddValue = getMinValue(minAddValue, getValueToAdd(sumPart1, sumPart2, sumPart3));
+
+						for (int k = 0; k < graphIndexes.length; ++k) {
+							if (graphIndexes[k] == 3) {
+								graphIndexes[k] = graphNumToDivide;
+							}
+						}
+					}
+				}
 			}
 		}
 		return minAddValue == null ? -1 : minAddValue;
 	}
 
-	private static void walkThroughEdges(int[][] edges, int[] graphIndexes, boolean[] markEdges, int graphNum) {
-		int startIndex = -1;
-		for (int i = 0; i < markEdges.length; ++i) {
-			if (!markEdges[i]) {
-				startIndex = i;
-				markEdges[i] = true;
-				break;
-			}
-		}
-		if (startIndex == -1) {
-			for (int i = 0; i < graphIndexes.length; ++i) {
-				if (graphIndexes[i] == 0) {
-					graphIndexes[i] = graphNum;
-					return;
-				}
-			}
-			return;
-		}
-		graphIndexes[edges[startIndex][0] - 1] = graphNum;
-		graphIndexes[edges[startIndex][1] - 1] = graphNum;
+	private static Integer getMinValue(Integer minAddValue, Integer sum) {
+		return minAddValue == null || sum != null && sum < minAddValue ? sum : minAddValue;
+	}
 
-		boolean isAnyChanged = true;
-		while (isAnyChanged) {
-			isAnyChanged = false;
-			for (int i = startIndex + 1; i < markEdges.length; ++i) {
-				if (!markEdges[i]) {
+	private static void cutEdge(int[][] edges, int[] graphIndexes, int newGraphNum, int... cutNums) {
+		int numEdgeToCut = cutNums[cutNums.length - 1];
+		int[] edgeToCut = edges[numEdgeToCut];
+		graphIndexes[edgeToCut[1] - 1] = newGraphNum;
+		boolean isSomethingChanged = true;
+		while (isSomethingChanged) {
+			isSomethingChanged = false;
+			for (int i = 0; i < edges.length; ++i) {
+				if (cutNums[0] != i && cutNums[cutNums.length - 1] != i) {
 					int[] edge = edges[i];
-					if (graphIndexes[edge[0] - 1] == graphNum || graphIndexes[edge[1] - 1] == graphNum) {
-						graphIndexes[edge[0] - 1] = graphNum;
-						graphIndexes[edge[1] - 1] = graphNum;
-						markEdges[i] = true;
-						isAnyChanged = true;
+					if (graphIndexes[edge[0] - 1] == newGraphNum && graphIndexes[edge[1] - 1] != newGraphNum) {
+						graphIndexes[edge[1] - 1] = newGraphNum;
+						isSomethingChanged = true;
+					} else if (graphIndexes[edge[0] - 1] != newGraphNum && graphIndexes[edge[1] - 1] == newGraphNum) {
+						graphIndexes[edge[0] - 1] = newGraphNum;
+						isSomethingChanged = true;
 					}
 				}
 			}
