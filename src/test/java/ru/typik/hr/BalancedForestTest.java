@@ -17,7 +17,6 @@ public class BalancedForestTest {
 	public void test1() {
 		assertEquals(19, BalancedForest.balancedForest(new int[] { 15, 12, 8, 14, 13 },
 				new int[][] { new int[] { 1, 2 }, new int[] { 1, 3 }, new int[] { 1, 4 }, new int[] { 4, 5 } }));
-
 		assertEquals(2, BalancedForest.balancedForest(new int[] { 1, 2, 2, 1, 1, },
 				new int[][] { new int[] { 1, 2 }, new int[] { 1, 3 }, new int[] { 3, 5 }, new int[] { 1, 4 } }));
 		assertEquals(-1, BalancedForest.balancedForest(new int[] { 1, 3, 5 },
@@ -47,19 +46,11 @@ public class BalancedForestTest {
 	public void testFile3() throws IOException {
 		List<Parameters> parametersList = getParametersFromFile("src/test/resources/balancedTree/input03.txt");
 
-		BalancedForest.balancedForest(parametersList.get(0).values, parametersList.get(0).edges);
-//		assertEquals(5, parametersList.size());
-//
-//		assertEquals(-1,
-//				BalancedForest.balancedForest(parametersList.get(0).getValues(), parametersList.get(0).getEdges()));
-//		assertEquals(10,
-//				BalancedForest.balancedForest(parametersList.get(1).getValues(), parametersList.get(1).getEdges()));
-//		assertEquals(13,
-//				BalancedForest.balancedForest(parametersList.get(2).getValues(), parametersList.get(2).getEdges()));
-//		assertEquals(5,
-//				BalancedForest.balancedForest(parametersList.get(3).getValues(), parametersList.get(3).getEdges()));
-//		assertEquals(297,
-//				BalancedForest.balancedForest(parametersList.get(4).getValues(), parametersList.get(4).getEdges()));
+		assertEquals( 1714 			, BalancedForest.balancedForest(parametersList.get(0).values, parametersList.get(0).edges) );
+		assertEquals( 5016 			, BalancedForest.balancedForest(parametersList.get(1).values, parametersList.get(1).edges) );
+		assertEquals( 759000000000l , BalancedForest.balancedForest(parametersList.get(2).values, parametersList.get(2).edges) );
+		assertEquals( -1 			, BalancedForest.balancedForest(parametersList.get(3).values, parametersList.get(3).edges) );
+		assertEquals( 6 			, BalancedForest.balancedForest(parametersList.get(4).values, parametersList.get(4).edges) );
 	}
 
 	private List<Parameters> getParametersFromFile(String path) throws IOException {
